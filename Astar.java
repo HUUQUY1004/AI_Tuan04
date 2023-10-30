@@ -90,12 +90,55 @@ public class Astar implements IInformedSearchAlgo {
 		}
 
 	}
+	public int caculateCost(Node root, String goal) {
+		int totalCost = 0;
+		PriorityQueue<Node> queue = new PriorityQueue<Node>(new NodeComparator());
+		Set<Node> visited = new HashSet<Node>();
+		queue.add(root);
+		visited.add(root);
+		while (!queue.isEmpty()) {
+			Node current = queue.poll();
+			if (current.getLabel().equals(goal)) {
+				return totalCost;
+			}
+			for (Edge e : current.getChildren()) {
+				Node end = e.getEnd(); // A B
+				double cost = e.getWeight();
+
+				if (!visited.contains(end) && !queue.contains(end)) {
+					end.setG(current.getG() + cost);
+					end.setParent(current);
+					queue.add(end);
+					visited.add(end);
+					totalCost +=cost;
+				}
+
+				else if (queue.contains(end) && end.getG() > current.getG() + e.getWeight()) {
+					end.setG(current.getG() + e.getWeight());
+					end.setParent(current);
+					totalCost += cost;
+
+				}
+//			
+			}
+		}
+		return totalCost;
+	}
 	public boolean isAdmissibleHHelper(Node root,String goal, int h) {
 		if(root.getLabel().equals(goal)) {
 			return h==0;
 		}
-		int cost = 
-		return true;
+		int cost = caculateCost( root ,  goal);
+		if( h < cost && h>0) {
+			for(Node node : root.getChildrenNodes()) {
+				int hVlaue = (int) node.getH();
+				if(!isAdmissibleHHelper(node, goal, hVlaue)) {
+					return false;
+				}
+			}
+			return true;
+		}
+		return false;
 	}
 	public boolean isAdmissibleH(Node root, String goal) {
 		// helper pattern vs h= 0 từ thằng root
